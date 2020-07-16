@@ -1,0 +1,103 @@
+﻿@model ClothBazar.web.ViewModels.OrderViewModels
+@{
+    ViewBag.Title = "Orders";
+}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="title-section">
+                <h2 class="title">
+                    Orders
+                </h2>
+            </div><!-- /.title-section -->
+        </div><!-- /.col-md-12 -->
+    </div>
+
+<div class="container">
+    <div id="tableContainer" class=" col-md-12" style="float:left;">
+        <div>
+            <form method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <h2>Search Here</h2>
+                            <input class="form-control" name="UserID" id="searchTxt" placeholder="Search..." value="@Model.UserID" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <br />
+                            <button type="submit" id="searchBtn">Search</button>
+                            <a id="searchBtn"  href="@Url.Action("Index", "Order", new { pageNo=1 })">Reset</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <h2>Orders Table</h2>
+
+        <table id="ordersTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <td>User ID</td>
+                    <td>Total Price</td>
+                    <td>Status</td>
+                    <td>Action</td>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Orders != null && Model.Orders.Count > 0)
+                {
+                    foreach (var order in Model.Orders)
+                    {
+                        <tr>
+
+                            <td>
+                                <input type="hidden" value="@order.UserID" />
+                                @order.UserID
+                            </td>
+                            <td>
+                                @order.TotalAmount
+                            </td>
+                            <td>@order.Status</td>
+                            <td>
+                                <a class="detailBtn" dataId="@order.ID"  href="@Url.Action("Details", "Order", new { ID = order.ID})">Details</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td class="text-danger" colspan="4">No order found.</td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+        <div>
+            @if (Model.Pager != null)
+            {
+                if (Model.Pager.CurrentPage > 1)
+                {
+                    <a class="NextPrevButtons" dataPageNo="1" href="@Url.Action("Index", "Order", new { userID = Model.UserID, status = Model.Status, pageNo=1 })">First</a>
+                    <a class="NextPrevButtons" dataPageNo="@(Model.Pager.CurrentPage-1)"  href="@Url.Action("Index", "Order", new { userID = Model.UserID, status = Model.Status, pageNo=Model.Pager.CurrentPage-1 })">Previous</a>
+                }
+
+                for (var page = Model.Pager.StartPage; page <= Model.Pager.EndPage; page++)
+                {
+                    string activeClass = Model.Pager.CurrentPage == page ? "bg-info" : string.Empty;
+                    <a class="@activeClass NextPrevButtons" dataPageNo="@page"  href="@Url.Action("Index", "Order", new { userID = Model.UserID, status = Model.Status, pageNo=page })">@page</a>
+                }
+                if (Model.Pager.CurrentPage < Model.Pager.TotalPages)
+                {
+                    <a class="NextPrevButtons" dataPageNo="@(Model.Pager.CurrentPage+1)"  href="@Url.Action("Index", "Order", new { userID = Model.UserID, status = Model.Status, pageNo=Model.Pager.CurrentPage+1})">Next</a>
+                    <a class="NextPrevButtons" dataPageNo="@Model.Pager.EndPage"  href="@Url.Action("Index", "Order", new { userID = Model.UserID, status = Model.Status, pageNo=Model.Pager.EndPage })">Last</a>
+                }
+
+            }
+
+        </div>
+    </div>
+     
+</div>

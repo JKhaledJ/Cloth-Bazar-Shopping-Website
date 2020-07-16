@@ -1,0 +1,55 @@
+﻿@model ClothBazar.web.ViewModels.ProductsWidgetViewModel
+@{
+    string defaultImageUrl = "/Content/images/image-placeholder.jpg";
+
+}
+@if (Model != null && Model.Products != null)
+{
+    if (!Model.IsLatestProduct)
+    {
+        if (Model.CategoryID == 0)
+        {<ul class="flat-filter style-1 text-center max-width-682 clearfix">
+                <li class="active"><a href="#" data-filter="*">All Product</a></li>
+                @foreach (var category in Model.Products.Select(x => x.category).ToList().Distinct())
+                {
+                    <li><a href="#" data-filter=".@category.Name.ToLower()">For @category.Name</a></li>
+                }
+            </ul>
+            <div class="divider h54"></div> }
+    }
+
+    <div class="product-content product-fourcolumn clearfix">
+        <ul class="product style2 isotope-product clearfix">
+            @foreach (var products in Model.Products)
+            {
+                var imageUrl = string.IsNullOrEmpty(products.ImageURL) ? defaultImageUrl : products.ImageURL;
+                <li class="product-item @products.category.Name.ToLower()">
+                    <div class="product-thumb clearfix">
+                        <a href="@Url.Action("Details","Product",new {id=products.ID })" class="product-thumb">
+                            <img src="@imageUrl" alt="image">
+                        </a>
+                        @if (Model.IsLatestProduct)
+                        {
+                            <span class="new">New</span>
+                        }
+
+                    </div>
+                    <div class="product-info text-center clearfix">
+                        <span class="product-title">@products.Name</span>
+                        <div class="price">
+                            <ins>
+                                <span class="amount">$@products.Price</span>
+                            </ins>
+                        </div>
+
+                    </div>
+                    <div class="add-to-cart text-center">
+                        <a href="#">ADD TO CART</a>
+                    </div>
+                    <a href="#" class="like"><i class="fa fa-heart-o"></i></a>
+                </li>
+            }
+
+        </ul>
+    </div>
+}

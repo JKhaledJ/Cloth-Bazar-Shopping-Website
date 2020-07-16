@@ -1,0 +1,20 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
+<div class="container">
+    <div id="productCnt" class=" col-md-12" style="float:left;">
+        @{
+            Html.RenderAction("ProductTable");
+            //Html.RenderAction("Create");
+
+        }
+    </div>
+
+    <div id="actionContainer" class=" col-md-6" style="float:left;">
+
+    </div>
+
+</div>

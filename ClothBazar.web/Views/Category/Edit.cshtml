@@ -1,0 +1,135 @@
+﻿@model ClothBazar.Entities.Category
+
+@{
+    ViewBag.Title = "Edit";
+    var trueChecked = Model.isFeatured ? "checked" : string.Empty;
+    var falseChecked = !Model.isFeatured ? "checked" : string.Empty;
+
+    var imageURL = !string.IsNullOrEmpty(Model.ImageURL) ? Model.ImageURL : "/Content/images/image-placeholder.jpg";
+}
+
+
+<div class="col-md-8" style="float:left">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="title-section">
+                <h2 class="title">
+                    Edit
+                </h2>
+            </div><!-- /.title-section -->
+        </div><!-- /.col-md-12 -->
+    </div>
+
+    <form id="editFrom">
+        <div class="form-group">
+            <input type="hidden" name="id" value="@Model.ID" />
+            <label>Name</label>
+            <input class="form-control" name="Name" value="@Model.Name" />
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <input class="form-control" name="Description" value="@Model.Description" />
+        </div>
+        <div class="form-group">
+            <label>Image</label>
+            <input id="ImageURL" name="ImageURL" type="hidden" />
+            <input class="form-control" id="imageUpload" value="@Model.ImageURL" name="ImageURL" type="file" accept=".jpg,.png" />
+        </div>
+        <div class="form-group">
+            <label>Is Featured ?</label>
+            <input type="radio" name="isFeatured" value="true" @trueChecked />Yes
+            <input type="radio" name="isFeatured" value="false" @falseChecked />No
+        </div>
+        
+        <div class="thumb">
+            <button type="button" id="saveBtn">Update</button>
+            <button type="button" id="cancelBtn">Cancel</button>
+            <img src="@imageURL" name="ImageURL" class="img-thumbnail img-fluid" id="categoryImage" width="100" height="100" />
+        </div>
+    </form>
+</div>
+
+
+
+<script>
+    $("#imageUpload").change(function () {
+        var element = this;
+        var formData = new FormData();
+        var totalFiles = element.files.length;
+        for (var i = 0; i < totalFiles; i++) {
+            var file = element.files[i];
+            formData.append("Photo", file);
+        }
+
+        $.ajax({
+            type: "POST",
+            url: '/Shared/UploadImage',
+            dataType:'json',
+            data: formData,
+            contentType: false,
+            processData: false
+        }).done(function (response) {
+            if (response.Success) {
+                $("#ImageURL").val( response.ImageURL);
+                $("#categoryImage").attr("src", response.ImageURL);
+            }
+
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Fails");
+        })
+    });
+
+    $("#saveBtn").click(function () {
+        $.ajax({
+            type: "POST",
+            url: '/Category/Edit',
+            data: $("#editFrom").serialize()
+        }).done(function (response) {
+            
+            $("#categoryContainer").html(response);
+            $("#categoryActionContainer").html("");
+            console.log("Image url "+response.ImageURL);
+
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Fails edit");
+        })
+    })
+
+    $("#cancelBtn").click(function () {
+        $.ajax({
+            type: "GET",
+            url: '/Category/CategoryTable'
+
+        }).done(function (response) {
+            $("#categoryContainer").html(response);
+            $("#categoryActionContainer").html("");
+            $("#categoryContainer").attr("Class", "col-md-12");
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Fails");
+        })
+    })
+
+
+    $("#editFrom").validate({
+        rules: {
+            Name: {
+                required: true,
+                minlength: 5,
+                maxlength: 30
+            },
+            Descrption: {
+                maxlength: 500
+            }
+        },
+        messages: {
+            Name: {
+                required: "Please enter your name.",
+                minlength: "Minimum length is 5",
+                maxlength: "Maximum length is 30"
+            },
+            Description: {
+                maxlength: "Maximum length is 500"
+            },
+        }
+    });
+</script>

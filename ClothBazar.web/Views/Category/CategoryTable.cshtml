@@ -1,0 +1,182 @@
+﻿@model ClothBazar.web.ViewModels.CategorySearchViewModel
+@{
+    ViewBag.Title = "Index";
+}
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-section">
+            <h2 class="title">
+                Categories
+            </h2>
+        </div><!-- /.title-section -->
+    </div><!-- /.col-md-12 -->
+</div>
+
+<div>
+    <form method="post">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <h2>Search Here</h2>
+                    <input class="form-control" name="Search" id="searchTxt" placeholder="Search..." value="@Model.SearchTerm" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <br />
+                    <button type="button" id="searchBtn">Search</button>
+                    <button type="button" id="resetBtn">Reset</button>
+                    <button type="button" id="newBtn">New</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<table class="table table-striped">
+    <tr>
+        <th><b>Name</b></th>
+        <th><b>Description</b></th>
+        <th><b>Actions</b></th>
+    </tr>
+    @foreach (var category in Model.Categories)
+    {
+        <tr>
+            <td><label>@category.Name</label></td>
+            <td><label>@category.Description</label></td>
+            <td>
+                <button class="editBtn" dataId="@category.ID">Edit</button>
+                <button class="deleteBtn" dataId="@category.ID">Delete</button>
+            </td>
+        </tr>
+    }
+
+</table>
+
+<div>
+
+    <div>
+        @if (Model.Pager != null)
+        {
+            if (Model.Pager.CurrentPage > 1)
+            {
+                <button class="NextPrevButtons" dataPageNo="1">First</button>
+                <button class="NextPrevButtons" dataPageNo="@(Model.Pager.CurrentPage-1)">Previous</button>
+            }
+
+            for (var page = Model.Pager.StartPage; page <= Model.Pager.EndPage; page++)
+            {
+                string activeClass = Model.Pager.CurrentPage == page ? "bg-info" : string.Empty;
+                <button class="@activeClass NextPrevButtons" dataPageNo="@page">@page</button>
+            }
+            if (Model.Pager.CurrentPage < Model.Pager.TotalPages)
+            {
+                <button class="NextPrevButtons" dataPageNo="@(Model.Pager.CurrentPage+1)">Next</button>
+                <button class="NextPrevButtons" dataPageNo="@Model.Pager.EndPage">Last</button>
+            }
+
+        }
+    </div>
+
+</div>
+<script>
+    $(".NextPrevButtons").click(function () {
+        $.ajax({
+            url: '/Category/CategoryTable',
+            data: {
+                pageNo: $(this).attr("dataPageNo"),
+                search: '@Model.SearchTerm' //we take search value from modal bcz we need it after clicking on search
+                                            //button. But textbox value can be passed even without clicking search btn.
+            }
+
+        }).done(function (response) {
+            $("#categoryContainer").html(response);
+
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Fails");
+        })
+    })
+
+    $("#searchBtn").click(function () {
+        var searchValue = $("#searchTxt").val();
+        $.ajax({
+            type: 'GET',
+            url: '/Category/CategoryTable',  @*'@Url.Action("CategoryTable", "Category") ',*@
+            
+            data: {
+                search: searchValue
+            }
+        }).done(function (response) {
+            $("#categoryContainer").html(response);
+
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Fails");
+        })
+    })
+
+    $("#resetBtn").click(function () {
+        var searchValue = "";
+        $.ajax({
+            type: 'GET',
+            url:'/Category/CategoryTable',  @*'@Url.Action("CategoryTable", "Category") '*@
+            data: {
+                search: searchValue
+            }
+        }).done(function (response) {
+            $("#categoryContainer").html(response);
+
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Fails");
+        })
+    })
+
+    $("#newBtn").click(function () {
+        $.ajax({
+            type: "Get",
+            url: '/Category/Create'
+        }).done(function (response) {
+            $("#categoryActionContainer").html(response);
+            $("#categoryContainer").attr("Class", "col-md-6");
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Fails");
+        })
+    })
+
+    $(".editBtn").click(function () {
+        debugger;
+        $.ajax({
+            type: 'Get',
+            url: '/Category/Edit',
+            data: {
+                
+                id: $(this).attr('dataId')
+            }
+        }).done(function (response) {
+            $("#categoryContainer").attr("Class", "col-md-6");
+            $("#categoryActionContainer").html(response);
+
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            console.log(response);
+            alert("Fails category table");
+        })
+    })
+
+    $(".deleteBtn").click(function () {
+        //var confirmDelete = confirm("Are you sure to delete this?");
+        //if (confirmDelete) {
+            $.ajax({
+                type: 'POSt',
+                url: '/Category/Delete',
+                data: {
+                    id: $(this).attr('dataId')
+                }
+            }).done(function (response) {
+                $("#categoryContainer").html(response);
+
+            }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Fails");
+            })
+        //}
+    })
+</script>

@@ -1,0 +1,144 @@
+﻿@model ClothBazar.web.ViewModels.NewProductViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    var imageURL = !string.IsNullOrEmpty(Model.ImageURL) ? Model.ImageURL : "/Content/images/image-placeholder.jpg";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-section">
+            <h2 class="title">
+                Edit Product
+            </h2>
+        </div><!-- /.title-section -->
+    </div><!-- /.col-md-12 -->
+</div>
+<form id="editFrom">
+    <div class="form-group">
+        <label>Categories</label>
+        <select class="form-control" name="CategoryID">
+            @foreach (var category in Model.AvailableCategories)
+            {
+                <option value="@category.ID" @(category.ID == Model.CategoryID ? "selected" : "")>@category.Name</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <input type="hidden" name="id" value="@Model.ID" />
+
+        <label>Name</label>
+        <input class="form-control" name="Name" value="@Model.Name" />
+    </div>
+    <div class="form-group">
+        <label>Description</label>
+        <input class="form-control" name="Description" value="@Model.Description" />
+    </div>
+    <div class="form-group">
+        <label>Price</label>
+        <input class="form-control" name="Price" value="@Model.Price" />
+    </div>
+    <div class="form-group">
+        <label>Image</label>
+        <input id="ImageURL" name="ImageURL" type="hidden" />
+        <input class="form-control" id="imageUpload" name="Image" type="file" accept=".jpg,.png" />
+    </div>
+    <button type="button" id="saveBtn">Update</button>
+    <button type="button" id="cancelBtn">Cancel</button>
+    <img src="@imageURL" name="ImageURL" class="img-thumbnail img-fluid" id="productImage" width="100" height="100" />
+</form>
+
+
+<script>
+    $("#editFrom").validate({
+        rules: {
+            Name: {
+                required: true,
+                minlength: 5,
+                maxlength: 30
+            },
+            Descrption: {
+                maxlength: 500
+            },
+            Price: {
+                range: [1, 10000]
+            }
+        },
+        messages: {
+            Name: {
+                required: "Please enter your product name.",
+                minlength: "Minimum length is 5",
+                maxlength: "Maximum length is 30"
+            },
+            Description: {
+                maxlength: "Maximum length is 500"
+            },
+            Price: {
+                range: 'Price must be within 1 and 10000'
+            }
+        }
+    });
+    $("#imageUpload").change(function () {
+        var element = this;
+        var formData = new FormData();
+        var totalFiles = element.files.length;
+        for (var i = 0; i < totalFiles; i++) {
+            var file = element.files[i];
+            formData.append("Photo", file);
+        }
+
+        $.ajax({
+            type: "POST",
+            url: '/Shared/UploadImage',
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false
+        }).done(function (response) {
+            if (response.Success) {
+                $("#ImageURL").val(response.ImageURL);
+                $("#productImage").attr("src", response.ImageURL);
+            }
+
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Fails");
+        })
+    });
+    $("#saveBtn").click(function () {
+        if ($("#editFrom").valid()) {
+            $.ajax({
+                type: "POST",
+                url: '/product/Edit',
+                data: $("#editFrom").serialize()
+            }).done(function (response) {
+                $("#productCnt").html(response);
+                $("#actionContainer").html("");
+
+            }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Fails");
+            });
+        }
+        else {
+                swal({
+                    title: "JS Warning",
+                    text: "Please fill al fields.",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                })
+            }
+        });
+
+    $("#cancelBtn").click(function () {
+        $.ajax({
+            type: "GET",
+            url: '/Product/ProductTable'
+
+        }).done(function (response) {
+            $("#productCnt").html(response);
+            $("#actionContainer").html("");
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Fails");
+        })
+    })
+</script>

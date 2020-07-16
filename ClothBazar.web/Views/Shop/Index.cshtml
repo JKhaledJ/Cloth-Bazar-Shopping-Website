@@ -1,0 +1,227 @@
+﻿@using ClothBazar.web.Code
+@model ClothBazar.web.ViewModels.ShopViewModel
+@{
+    ViewBag.Title = "Index";
+    var sortBy = Model.sortBy;
+
+}
+
+<!-- Page title -->
+<div class="page-title parallax parallax1">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-title-heading">
+                    <h1 class="title">Slidebar Shop</h1>
+                </div><!-- /.page-title-heading -->
+                <div class="breadcrumbs">
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="shop-3col.html">Shop</a></li>
+                        <li><a href="shop-3col-slide.html">Slidebarshop</a></li>
+                    </ul>
+                </div><!-- /.breadcrumbs -->
+            </div><!-- /.col-md-12 -->
+        </div><!-- /.row -->
+    </div><!-- /.container -->
+</div><!-- /.page-title -->
+
+<section class="flat-row main-shop shop-slidebar">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="sidebar slidebar-shop">
+                    <div class="widget widget-search">
+                        <form role="search" method="get" class="search-form" action="@Url.Action("Index", "Shop")">
+                            <label>
+                                <input type="search" class="search-field" placeholder="Search …" value="@Model.SearchTerm" name="searchTerm">
+                            </label>
+                            <input type="submit" class="search-submit" value="Search">
+                        </form>
+                    </div><!-- /.widget-search -->
+                    <div class="widget widget-sort-by">
+                        <h5 class="widget-title">
+                            Sort By
+                        </h5>
+                        <ul>
+
+                            <li><a data-href="@Url.Action("FilterProducts", "Shop", new { sortBy = (int)SortByEnums.Default, categoryID=Model.CategoryID })" class="dataLink @(Model.sortBy == (int)SortByEnums.Default ? "active" : "")">Default | Newest</a></li>
+                            <li><a data-href="@Url.Action("FilterProducts","Shop",new { sortBy=(int)SortByEnums.Polpularity, categoryID=Model.CategoryID})" class="dataLink @(Model.sortBy ==(int)SortByEnums.Polpularity ? "active" : "")">Popularity</a></li>
+                            <li><a data-href="@Url.Action("FilterProducts","Shop",new { sortBy=(int)SortByEnums.PriceLowToHigh, categoryID=Model.CategoryID})" class="dataLink @(Model.sortBy ==(int)SortByEnums.PriceLowToHigh ? "active" : "")">Price: low to high</a></li>
+                            <li><a data-href="@Url.Action("FilterProducts","Shop",new { sortBy=(int)SortByEnums.PriceHighToLow, categoryID=Model.CategoryID})" class="dataLink @(Model.sortBy ==(int)SortByEnums.PriceHighToLow ? "active" : "")">Price: high to low</a></li>
+                        </ul>
+                    </div><!-- /.widget-sort-by -->
+                    <div class="widget widget-color">
+                        <h5 class="widget-title">
+                            Colors
+                        </h5>
+                        <ul class="flat-color-list icon-left">
+                            <li><a href="#" class="yellow"></a><span>Yellow</span> <span class="pull-right">25</span></li>
+                            <li><a href="#" class="pink"> </a><span>White</span> <span class="pull-right">16</span></li>
+                            <li><a href="#" class="red active"></a><span>Red</span> <span class="pull-right">28</span></li>
+                            <li><a href="#" class="black"></a><span>Black</span> <span class="pull-right">12</span></li>
+                            <li><a href="#" class="blue"></a><span>Green</span> <span class="pull-right">0</span></li>
+                        </ul>
+                    </div><!-- /.widget-color -->
+                    <div class="widget widget-size">
+                        <h5 class="widget-title">
+                            Size
+                        </h5>
+                        <ul>
+                            <li class="checkbox">
+                                <input type="checkbox" name="checkbok1" id="checkbox1">
+                                <label for="checkbox1">
+                                    <a href="#">L</a>
+                                </label>
+                            </li>
+                            <li class="checkbox">
+                                <input type="checkbox" name="checkbok2" id="checkbox2">
+                                <label for="checkbox2">
+                                    <a href="#">M</a>
+                                </label>
+                            </li>
+                            <li class="checkbox">
+                                <input type="checkbox" name="checkbok3" id="checkbox3">
+                                <label for="checkbox3">
+                                    <a href="#">S</a>
+                                </label>
+                            </li>
+                            <li class="checkbox">
+                                <input type="checkbox" name="checkbok4" id="checkbox4">
+                                <label for="checkbox4">
+                                    <a href="#">X</a>
+                                </label>
+                            </li>
+                            <li class="checkbox">
+                                <input type="checkbox" name="checkbok5" id="checkbox5">
+                                <label for="checkbox5">
+                                    <a href="#">XL</a>
+                                </label>
+                            </li>
+                            <li class="checkbox">
+                                <input type="checkbox" name="checkbok6" id="checkbox6">
+                                <label for="checkbox6">
+                                    <a href="#">XXL</a>
+                                </label>
+                            </li>
+                        </ul>
+                    </div><!-- /.widget-size -->
+                    <div class="widget widget-price">
+                        <h5 class="widget-title">Filter by price</h5>
+                        <div class="price-filter">
+                            <div id="slide-range"></div>
+                            <p class="amount">
+                                Price: <input type="text" id="amount" disabled="">
+                            </p>
+                        </div>
+                    </div>
+                    <div class="widget widget_tag">
+                        <h5 class="widget-title">
+                            Featured Categories
+                        </h5>
+                        <div class="tag-list">
+                            @foreach (var category in Model.FeaturedCategories)
+                            {
+                                <a data-href="@Url.Action("FilterProducts","Shop",new { categoryID=category.ID,sortBy=sortBy})" class="dataLink @(Model.CategoryID.HasValue && Model.CategoryID.Value==category.ID? "active" : "")">@category.Name</a>
+                            }
+
+                        </div>
+
+                    </div><!-- /.widget -->
+                    <button id="resetBtn">Reset</button>
+                </div><!-- /.sidebar -->
+            </div><!-- /.col-md-3 -->
+            <div class="col-md-9">
+                
+                <div id="ProductsDiv">
+                    @{
+                        var filterProductsViewModel = new ClothBazar.web.ViewModels.FilterProductsViewModel();
+                        filterProductsViewModel.Products = Model.Products;
+                        filterProductsViewModel.Pager = Model.Pager;
+                        filterProductsViewModel.CategoryID = Model.CategoryID;
+                        filterProductsViewModel.sortBy = Model.sortBy;
+                        Html.RenderPartial("FilterProducts",filterProductsViewModel);
+                    }
+                </div>
+            </div><!-- /.col-md-9 -->
+        </div><!-- /.row -->
+    </div><!-- /.container -->
+</section><!-- /.flat-row -->
+
+<script>
+    var callTimeout;
+   var PriceSlider= $("#slide-range").slider({
+      range: true,
+      min: 0,
+      max: @Model.MaximumPrice,
+      values: [ 0, @Model.MaximumPrice ],
+        slide: function (event, ui) {
+            clearTimeout(callTimeout);
+            callTimeout = setTimeout(PriceRangeChange, 500);
+        $( "#amount" ).val( "$" + ui.values[ 0 ] + ".00" + " - " + "$" + ui.values[ 1 ] + ".00" );
+      }
+    });
+
+    $(".dataLink").click(function () {
+        var url = $(this).attr("data-href");
+        if (url != "" || url != undefined) {
+            console.log('@Model.sortBy');
+            GetData(url);
+        }
+    });
+    function GetData(durl) {
+       showLoader();
+        $.ajax({
+            type: "Get",
+            url: durl,
+            data: {
+                searchTerm: $("#searchTerm").val(),
+                sortBy: $("#sortBy").val(),
+                categoryID: $("#categoryID").val(),
+                minimumPrice: PriceSlider.slider("values", 0),
+                maximumPrice: PriceSlider.slider("values", 1)
+            }
+        }).done(function (response) {
+            $("#ProductsDiv").html(response);
+
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Fails");
+        }).always(function () {
+            hideLoader();
+        });
+
+    }
+    function PriceRangeChange() {
+        $.ajax({
+            type: "Get",
+            url: '/Shop/FilterProducts',
+            data: {
+                categoryID: '@Model.CategoryID',
+                sortBy: '@Model.sortBy',
+                pageNo:'@Model.PageNo',
+                minimumPrice: PriceSlider.slider("values",0),
+                maximumPrice: PriceSlider.slider("values", 1)
+            }
+        }).done(function (response) {
+            $("#ProductsDiv").html(response);
+
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Fails");
+        })
+    }
+    $("#resetBtn").click(function () {
+        $.ajax({
+            type: "Get",
+            url: '/Shop/FilterProducts',
+            data: {
+                pageNo:'@Model.PageNo'
+            }
+        }).done(function (response) {
+            $("#ProductsDiv").html(response);
+
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Fails");
+        })
+    })
+
+</script>

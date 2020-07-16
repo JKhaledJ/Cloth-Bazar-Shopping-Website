@@ -1,0 +1,137 @@
+﻿@{
+    ViewBag.Title = "Create";
+}
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="title-section">
+                <h2 class="title">
+                    Create Category
+                </h2>
+            </div><!-- /.title-section -->
+        </div><!-- /.col-md-12 -->
+    </div>
+
+    <form id="createCategory">
+        <div class="form-group">
+
+            <label>Category Name</label>
+            <input class="form-control" name="Name" />
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <input class="form-control" name="Description" />
+        </div>
+        <div class="form-group">
+            <label>Image</label>
+            <input id="ImageURL" name="ImageURL" type="hidden" />
+            <input id="imageUpload" name="Image" type="file" accept=".jpg,.png" />
+        </div>
+        <div class="form-group">
+            <label>Is Featured ?</label>
+            <input type="radio" name="isFeatured" value="True">Yes
+            <input type="radio" name="isFeatured" value="False">No
+        </div>
+
+        <button type="button" id="saveBtn">Save</button>
+        <button type="button" id="cancelBtn">Cancel</button>
+        <img id="categoryImage" width="100" height="100" />
+
+    </form>
+
+<script>
+    $("#imageUpload").change(function () {
+        var element = this;
+        var formData = new FormData();
+        var totalFiles = element.files.length;
+        for (var i = 0; i < totalFiles; i++) {
+            var file = element.files[i];
+            formData.append("Photo", file);
+        }
+
+        $.ajax({
+            type: "POST",
+            url: '/Shared/UploadImage',
+            dataType:'json',
+            data: formData,
+            contentType: false,
+            processData: false
+        }).done(function (response) {
+            if (response.Success) {
+                $("#ImageURL").val( response.ImageURL);
+                $("#categoryImage").attr("src", response.ImageURL);
+            }
+
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Fails");
+        })
+    });
+
+    $("#createCategory").validate({
+        rules: {
+            Name: {
+                required: true,
+                minlength: 5,
+                maxlength:30
+            },
+            Descrption: {
+                maxlength:500
+            }
+        },
+        messages: {
+            Name: {
+                required: "Please enter your name.",
+                minlength: "Minimum length is 5",
+                maxlength:"Maximum length is 30"
+            },
+            Description: {
+                maxlength: "Maximum length is 500"
+            },
+        }
+    });
+
+    $("#saveBtn").click(function () {
+        if ($("#createCategory").valid()) {
+            $.ajax({
+                type: "POST",
+                url: '/Category/Create',
+                data: $("#createCategory").serialize()
+            }).done(function (response) {
+                $("#categoryContainer").html(response);
+                $("#categoryActionContainer").html("");
+
+            }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+                swal({
+                    title: "Warning",
+                    text: "Please fill al fields.",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                })
+            });
+        }
+        else {
+            swal({
+                title: "JS Warning",
+                text: "Please fill al fields.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+        }
+    });
+
+    $("#cancelBtn").click(function () {
+        $.ajax({
+            type: "GET",
+            url: '/Category/CategoryTable'
+
+        }).done(function (response) {
+            $("#categoryContainer").html(response);
+            $("#categoryActionContainer").html("");
+            $("#categoryContainer").attr("Class", "col-md-12");
+        }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Fails");
+        });
+    });
+</script>
